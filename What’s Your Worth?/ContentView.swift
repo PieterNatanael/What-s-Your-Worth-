@@ -9,6 +9,268 @@
 //the app with collaboration with Alan Theo
 
 import SwiftUI
+import UIKit
+
+struct ContentView: View {
+    @State private var valuationDate = Date()
+    @State private var applicantName = ""
+    @State private var applicantCountry = ""
+    @State private var currencyUsed = ""
+    
+    @State private var finalExpenses = ""
+    @State private var taxesPayable = ""
+    @State private var mortgagePayment = ""
+    @State private var otherDebts = ""
+    @State private var educationFunds = ""
+    @State private var emergencyFunds = ""
+    @State private var otherExpenses = ""
+    
+    @State private var spouseLivingExpense = ""
+    @State private var child1LivingExpense = ""
+    @State private var child2LivingExpense = ""
+    @State private var parent1LivingExpense = ""
+    @State private var parent2LivingExpense = ""
+    @State private var otherLivingExpense = ""
+    
+    @State private var spouseAge = ""
+    @State private var child1Age = ""
+    @State private var child2Age = ""
+    @State private var parent1Age = ""
+    @State private var parent2Age = ""
+    @State private var otherAge = ""
+    
+    @State private var spouseEmploymentIncome = ""
+    
+    @State private var cashAndSavings = ""
+    @State private var vestedRetirementAccount = ""
+    @State private var lifeInsurance = ""
+    @State private var property = ""
+    @State private var otherAssets = ""
+    @State private var investmentBonds = ""
+    @State private var investmentEquity = ""
+    
+    @State private var insuranceRequirement: Double = 0.0
+    @State private var showDocumentPicker = false
+    @State private var exportFileURL: URL?
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Applicant Information")) {
+                    DatePicker("Valuation Date", selection: $valuationDate, displayedComponents: .date)
+                    TextField("Name of Applicant", text: $applicantName)
+                    TextField("Country of Applicant", text: $applicantCountry)
+                    TextField("Currency Used", text: $currencyUsed)
+                }
+                
+                Section(header: Text("Expenses")) {
+                    TextField("Final Expenses", text: $finalExpenses)
+                    TextField("Taxes Payable", text: $taxesPayable)
+                    TextField("Mortgage Payment", text: $mortgagePayment)
+                    TextField("Other Debts", text: $otherDebts)
+                    TextField("Education Funds", text: $educationFunds)
+                    TextField("Emergency Funds", text: $emergencyFunds)
+                    TextField("Other Expenses", text: $otherExpenses)
+                }
+                
+                Section(header: Text("Living Expenses")) {
+                    TextField("Spouse Living Expense", text: $spouseLivingExpense)
+                    TextField("Child 1 Living Expense", text: $child1LivingExpense)
+                    TextField("Child 2 Living Expense", text: $child2LivingExpense)
+                    TextField("Parent 1 Living Expense", text: $parent1LivingExpense)
+                    TextField("Parent 2 Living Expense", text: $parent2LivingExpense)
+                    TextField("Other Living Expense", text: $otherLivingExpense)
+                }
+                
+                Section(header: Text("Ages")) {
+                    TextField("Spouse Age", text: $spouseAge)
+                    TextField("Child 1 Age", text: $child1Age)
+                    TextField("Child 2 Age", text: $child2Age)
+                    TextField("Parent 1 Age", text: $parent1Age)
+                    TextField("Parent 2 Age", text: $parent2Age)
+                    TextField("Other Age", text: $otherAge)
+                }
+                
+                Section(header: Text("Employment Income")) {
+                    TextField("Spouse Employment Income", text: $spouseEmploymentIncome)
+                }
+                
+                Section(header: Text("Portfolio")) {
+                    TextField("Cash and Savings", text: $cashAndSavings)
+                    TextField("Vested Retirement Account", text: $vestedRetirementAccount)
+                    TextField("Life Insurance", text: $lifeInsurance)
+                    TextField("Property", text: $property)
+                    TextField("Other Assets", text: $otherAssets)
+                    TextField("Investment Bonds", text: $investmentBonds)
+                    TextField("Investment Equity", text: $investmentEquity)
+                }
+                
+                Section(header: Text("Calculated Insurance Requirement")) {
+                    Text("\(insuranceRequirement, specifier: "%.2f")")
+                    Button(action: calculateInsuranceRequirement) {
+                        Text("Calculate")
+                    }
+                }
+                
+                Button(action: exportData) {
+                    Text("Export Data")
+                }
+            }
+            .navigationBarTitle("What's Your Worth?")
+        }
+        .sheet(isPresented: $showDocumentPicker) {
+            DocumentPicker(fileURL: $exportFileURL)
+        }
+    }
+    
+    func calculateInsuranceRequirement() {
+        // Convert input strings to Double
+        let finalExpensesValue = Double(finalExpenses) ?? 0.0
+        let taxesPayableValue = Double(taxesPayable) ?? 0.0
+        let mortgagePaymentValue = Double(mortgagePayment) ?? 0.0
+        let otherDebtsValue = Double(otherDebts) ?? 0.0
+        let educationFundsValue = Double(educationFunds) ?? 0.0
+        let emergencyFundsValue = Double(emergencyFunds) ?? 0.0
+        let otherExpensesValue = Double(otherExpenses) ?? 0.0
+        
+        let spouseLivingExpenseValue = Double(spouseLivingExpense) ?? 0.0
+        let child1LivingExpenseValue = Double(child1LivingExpense) ?? 0.0
+        let child2LivingExpenseValue = Double(child2LivingExpense) ?? 0.0
+        let parent1LivingExpenseValue = Double(parent1LivingExpense) ?? 0.0
+        let parent2LivingExpenseValue = Double(parent2LivingExpense) ?? 0.0
+        let otherLivingExpenseValue = Double(otherLivingExpense) ?? 0.0
+        
+        let spouseAgeValue = Double(spouseAge) ?? 0.0
+        let child1AgeValue = Double(child1Age) ?? 0.0
+        let child2AgeValue = Double(child2Age) ?? 0.0
+        let parent1AgeValue = Double(parent1Age) ?? 0.0
+        let parent2AgeValue = Double(parent2Age) ?? 0.0
+        let otherAgeValue = Double(otherAge) ?? 0.0
+        
+        let spouseEmploymentIncomeValue = Double(spouseEmploymentIncome) ?? 0.0
+        
+        let cashAndSavingsValue = Double(cashAndSavings) ?? 0.0
+        let vestedRetirementAccountValue = Double(vestedRetirementAccount) ?? 0.0
+        let lifeInsuranceValue = Double(lifeInsurance) ?? 0.0
+        let propertyValue = Double(property) ?? 0.0
+        let otherAssetsValue = Double(otherAssets) ?? 0.0
+        let investmentBondsValue = Double(investmentBonds) ?? 0.0
+        let investmentEquityValue = Double(investmentEquity) ?? 0.0
+
+        // Calculate total expenses and income
+        let totalExpenses = finalExpensesValue + taxesPayableValue + mortgagePaymentValue + otherDebtsValue + educationFundsValue + emergencyFundsValue + otherExpensesValue + spouseLivingExpenseValue + child1LivingExpenseValue + child2LivingExpenseValue + parent1LivingExpenseValue + parent2LivingExpenseValue + otherLivingExpenseValue
+        let totalAssets = cashAndSavingsValue + vestedRetirementAccountValue + lifeInsuranceValue + propertyValue + otherAssetsValue + investmentBondsValue + investmentEquityValue
+        
+        // Calculate number of years support is needed
+        let yearsSupportSpouse = max(0, 65 - spouseAgeValue)
+        let yearsSupportChild1 = max(0, 18 - child1AgeValue)
+        let yearsSupportChild2 = max(0, 18 - child2AgeValue)
+        let yearsSupportParent1 = max(0, 65 - parent1AgeValue)
+        let yearsSupportParent2 = max(0, 65 - parent2AgeValue)
+        let yearsSupportOther = max(0, 65 - otherAgeValue)
+        
+        // Calculate living expense totals
+        let totalLivingExpenses = (yearsSupportSpouse * spouseLivingExpenseValue) + (yearsSupportChild1 * child1LivingExpenseValue) + (yearsSupportChild2 * child2LivingExpenseValue) + (yearsSupportParent1 * parent1LivingExpenseValue) + (yearsSupportParent2 * parent2LivingExpenseValue) + (yearsSupportOther * otherLivingExpenseValue)
+        
+        // Calculate total income
+        let totalIncome = yearsSupportSpouse * spouseEmploymentIncomeValue
+        
+        // Calculate insurance requirement
+        insuranceRequirement = totalExpenses + totalLivingExpenses - totalAssets - totalIncome
+    }
+    
+    func exportData() {
+        let content = """
+        Valuation Date: \(formattedDate(valuationDate))
+        Applicant Name: \(applicantName)
+        Applicant Country: \(applicantCountry)
+        Currency Used: \(currencyUsed)
+        
+        Final Expenses: \(finalExpenses)
+        Taxes Payable: \(taxesPayable)
+        Mortgage Payment: \(mortgagePayment)
+        Other Debts: \(otherDebts)
+        Education Funds: \(educationFunds)
+        Emergency Funds: \(emergencyFunds)
+        Other Expenses: \(otherExpenses)
+        
+        Spouse Living Expense: \(spouseLivingExpense)
+        Child 1 Living Expense: \(child1LivingExpense)
+        Child 2 Living Expense: \(child2LivingExpense)
+        Parent 1 Living Expense: \(parent1LivingExpense)
+        Parent 2 Living Expense: \(parent2LivingExpense)
+        Other Living Expense: \(otherLivingExpense)
+        
+        Spouse Age: \(spouseAge)
+        Child 1 Age: \(child1Age)
+        Child 2 Age: \(child2Age)
+        Parent 1 Age: \(parent1Age)
+        Parent 2 Age: \(parent2Age)
+        Other Age: \(otherAge)
+        
+        Spouse Employment Income: \(spouseEmploymentIncome)
+        
+        Cash and Savings: \(cashAndSavings)
+        Vested Retirement Account: \(vestedRetirementAccount)
+        Life Insurance: \(lifeInsurance)
+        Property: \(property)
+        Other Assets: \(otherAssets)
+        Investment Bonds: \(investmentBonds)
+        Investment Equity: \(investmentEquity)
+        
+        Insurance Requirement: \(insuranceRequirement)
+        """
+        
+        let fileName = "WhatsYourWorthData.txt"
+        if let fileURL = writeToFile(content: content, fileName: fileName) {
+            exportFileURL = fileURL
+            showDocumentPicker = true
+        }
+    }
+    
+    func writeToFile(content: String, fileName: String) -> URL? {
+        let fileManager = FileManager.default
+        let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        guard let documentDirectory = urls.first else {
+            return nil
+        }
+        
+        let fileURL = documentDirectory.appendingPathComponent(fileName)
+        
+        do {
+            try content.write(to: fileURL, atomically: true, encoding: .utf8)
+            return fileURL
+        } catch {
+            print("Error writing to file: \(error)")
+            return nil
+        }
+    }
+    
+    func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter.string(from: date)
+    }
+}
+
+struct DocumentPicker: UIViewControllerRepresentable {
+    @Binding var fileURL: URL?
+    
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forExporting: [fileURL!])
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
+}
+
+#Preview {
+    ContentView()
+}
+
+/*
+//perubahan total
+import SwiftUI
 import Foundation
 
 struct ContentView: View {
@@ -273,6 +535,7 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
+*/
 
 
 /*
