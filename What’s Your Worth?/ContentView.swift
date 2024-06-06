@@ -10,200 +10,260 @@
 
 
 
-
 import SwiftUI
+import Foundation
 
-struct LifeInsuranceCalculator: View {
-    // Inputs
-    @State private var valuationDate: Date = Date()
-    @State private var applicantName: String = ""
-    @State private var applicantCountry: String = ""
-    @State private var currency: String = ""
+struct ContentView: View {
+    @State private var valuationDate = Date()
+    @State private var name = ""
+    @State private var country = ""
+    @State private var currency = ""
     
-    // Final Expenses
-    @State private var taxesPayable: String = ""
-    @State private var mortgageRetirement: String = ""
-    @State private var otherDebts: String = ""
-    @State private var educationFund: String = ""
-    @State private var emergencyFund: String = ""
-    @State private var otherFinalExpenses: String = ""
+    // Expenses
+    @State private var finalExpenses = ""
+    @State private var taxesPayable = ""
+    @State private var mortgageRetirement = ""
+    @State private var otherDebt = ""
+    @State private var educationFund = ""
+    @State private var emergencyFund = ""
+    @State private var otherExpenses = ""
     
-    // Living Expenses
-    @State private var spouseLivingExpenses: String = ""
-    @State private var child1LivingExpenses: String = ""
-    @State private var child2LivingExpenses: String = ""
-    @State private var parent1LivingExpenses: String = ""
-    @State private var parent2LivingExpenses: String = ""
-    @State private var otherLivingExpenses: String = ""
+    // Living Expenses Annually
+    @State private var spouseLivingExpenses = ""
+    @State private var child1LivingExpenses = ""
+    @State private var child2LivingExpenses = ""
+    @State private var parent1LivingExpenses = ""
+    @State private var parent2LivingExpenses = ""
+    @State private var otherLivingExpenses = ""
     
-    // Dependent Ages
-    @State private var spouseAge: String = ""
-    @State private var child1Age: String = ""
-    @State private var child2Age: String = ""
-    @State private var parent1Age: String = ""
-    @State private var parent2Age: String = ""
-    @State private var otherDependentAge: String = ""
+    // Dependent Age
+    @State private var spouseAge = ""
+    @State private var child1Age = ""
+    @State private var child2Age = ""
+    @State private var parent1Age = ""
+    @State private var parent2Age = ""
+    @State private var otherDependentAge = ""
     
     // Employment Income
-    @State private var spouseIncome: String = ""
+    @State private var spouseEmploymentIncome = ""
     
     // Portfolio
-    @State private var cashSavings: String = ""
-    @State private var retirementAccounts: String = ""
-    @State private var lifeInsurance: String = ""
-    @State private var property: String = ""
+    @State private var cashSavings = ""
+    @State private var vestedRetirementAccounts = ""
+    @State private var lifeInsurance = ""
+    @State private var property = ""
     
     // Other Assets
-    @State private var equityInvestments: String = ""
-    @State private var bondInvestments: String = ""
+    @State private var investmentPortfolioEquity = ""
+    @State private var investmentPortfolioBonds = ""
     
-    // Output
-    @State private var lifeInsuranceRequired: String = "0.00"
-    
-    // Constants
-    let lifeExpectancy = 85
-    let retirementAge = 62
-    
-    // Function to calculate life insurance requirement
-    func calculateLifeInsurance() {
-        // Convert input strings to doubles for calculation
-        let taxesPayable = Double(self.taxesPayable) ?? 0.0
-        let mortgageRetirement = Double(self.mortgageRetirement) ?? 0.0
-        let otherDebts = Double(self.otherDebts) ?? 0.0
-        let educationFund = Double(self.educationFund) ?? 0.0
-        let emergencyFund = Double(self.emergencyFund) ?? 0.0
-        let otherFinalExpenses = Double(self.otherFinalExpenses) ?? 0.0
-        
-        let spouseLivingExpenses = Double(self.spouseLivingExpenses) ?? 0.0
-        let child1LivingExpenses = Double(self.child1LivingExpenses) ?? 0.0
-        let child2LivingExpenses = Double(self.child2LivingExpenses) ?? 0.0
-        let parent1LivingExpenses = Double(self.parent1LivingExpenses) ?? 0.0
-        let parent2LivingExpenses = Double(self.parent2LivingExpenses) ?? 0.0
-        let otherLivingExpenses = Double(self.otherLivingExpenses) ?? 0.0
-        
-        let spouseAge = Double(self.spouseAge) ?? 0.0
-        let child1Age = Double(self.child1Age) ?? 0.0
-        let child2Age = Double(self.child2Age) ?? 0.0
-        let parent1Age = Double(self.parent1Age) ?? 0.0
-        let parent2Age = Double(self.parent2Age) ?? 0.0
-        let otherDependentAge = Double(self.otherDependentAge) ?? 0.0
-        
-        let spouseIncome = Double(self.spouseIncome) ?? 0.0
-        
-        let cashSavings = Double(self.cashSavings) ?? 0.0
-        let retirementAccounts = Double(self.retirementAccounts) ?? 0.0
-        let lifeInsurance = Double(self.lifeInsurance) ?? 0.0
-        let property = Double(self.property) ?? 0.0
-        
-        let equityInvestments = Double(self.equityInvestments) ?? 0.0
-        let bondInvestments = Double(self.bondInvestments) ?? 0.0
-        
-        // Calculate total final expenses
-        let totalFinalExpenses = taxesPayable + mortgageRetirement + otherDebts + educationFund + emergencyFund + otherFinalExpenses
-        
-        // Calculate total living expenses considering dependent ages
-        let spouseYearsOfSupport = lifeExpectancy - spouseAge
-        let child1YearsOfSupport = 21 - child1Age
-        let child2YearsOfSupport = 21 - child2Age
-        let parent1YearsOfSupport = lifeExpectancy - parent1Age
-        let parent2YearsOfSupport = lifeExpectancy - parent2Age
-        
-        let totalLivingExpenses = (spouseLivingExpenses * spouseYearsOfSupport) + (child1LivingExpenses * child1YearsOfSupport) + (child2LivingExpenses * child2YearsOfSupport) + (parent1LivingExpenses * parent1YearsOfSupport) + (parent2LivingExpenses * parent2YearsOfSupport) + otherLivingExpenses
-        
-        // Calculate total portfolio and assets
-        let totalAssets = cashSavings + retirementAccounts + lifeInsurance + property + equityInvestments + bondInvestments
-        
-        // Calculate total employment income until retirement
-        let yearsUntilRetirement = retirementAge - spouseAge
-        let totalEmploymentIncome = spouseIncome * Double(yearsUntilRetirement)
-        
-        // Calculate life insurance requirement
-        let lifeInsuranceRequirement = totalFinalExpenses + totalLivingExpenses - totalAssets - totalEmploymentIncome
-        
-        // Update the state
-        self.lifeInsuranceRequired = String(format: "%.2f", lifeInsuranceRequirement)
-    }
+    // Calculation Results
+    @State private var lifeInsuranceRequirement: Double?
     
     var body: some View {
-        VStack {
+        NavigationView {
             Form {
-                Section(header: Text("Applicant Information")) {
-                    DatePicker("Valuation Date", selection: $valuationDate, displayedComponents: .date)
-                    TextField("Name of Applicant", text: $applicantName)
-                    TextField("Country of Applicant", text: $applicantCountry)
-                    TextField("Currency used", text: $currency)
+                Section(header: Text("Valuation Date")) {
+                    DatePicker("Date", selection: $valuationDate, displayedComponents: .date)
                 }
                 
-                Section(header: Text("Final Expenses")) {
-                    TextField("Taxes Payables", text: $taxesPayable)
-                    TextField("Mortgage Retirement", text: $mortgageRetirement)
-                    TextField("Other Debts", text: $otherDebts)
-                    TextField("Education Fund", text: $educationFund)
-                    TextField("Emergency Fund", text: $emergencyFund)
-                    TextField("Others", text: $otherFinalExpenses)
+                Section(header: Text("Personal Information")) {
+                    TextField("Name", text: $name)
+                    TextField("Country", text: $country)
+                    TextField("Currency", text: $currency)
                 }
                 
-                Section(header: Text("Living Expenses")) {
-                    TextField("Spouse", text: $spouseLivingExpenses)
-                    TextField("Child 1", text: $child1LivingExpenses)
-                    TextField("Child 2", text: $child2LivingExpenses)
-                    TextField("Parent 1", text: $parent1LivingExpenses)
-                    TextField("Parent 2", text: $parent2LivingExpenses)
-                    TextField("Other", text: $otherLivingExpenses)
+                Section(header: Text("Expenses")) {
+                    TextField("Final Expenses", text: $finalExpenses).keyboardType(.decimalPad)
+                    TextField("Taxes Payable", text: $taxesPayable).keyboardType(.decimalPad)
+                    TextField("Mortgage Retirement", text: $mortgageRetirement).keyboardType(.decimalPad)
+                    TextField("Other Debt", text: $otherDebt).keyboardType(.decimalPad)
+                    TextField("Education Fund", text: $educationFund).keyboardType(.decimalPad)
+                    TextField("Emergency Fund", text: $emergencyFund).keyboardType(.decimalPad)
+                    TextField("Other Expenses", text: $otherExpenses).keyboardType(.decimalPad)
+                }
+                
+                Section(header: Text("Living Expenses Annually")) {
+                    TextField("Spouse", text: $spouseLivingExpenses).keyboardType(.decimalPad)
+                    TextField("Child 1", text: $child1LivingExpenses).keyboardType(.decimalPad)
+                    TextField("Child 2", text: $child2LivingExpenses).keyboardType(.decimalPad)
+                    TextField("Parent 1", text: $parent1LivingExpenses).keyboardType(.decimalPad)
+                    TextField("Parent 2", text: $parent2LivingExpenses).keyboardType(.decimalPad)
+                    TextField("Other", text: $otherLivingExpenses).keyboardType(.decimalPad)
                 }
                 
                 Section(header: Text("Dependent Age")) {
-                    TextField("Spouse", text: $spouseAge)
-                    TextField("Child 1", text: $child1Age)
-                    TextField("Child 2", text: $child2Age)
-                    TextField("Parent 1", text: $parent1Age)
-                    TextField("Parent 2", text: $parent2Age)
-                    TextField("Other", text: $otherDependentAge)
+                    TextField("Spouse", text: $spouseAge).keyboardType(.decimalPad)
+                    TextField("Child 1", text: $child1Age).keyboardType(.decimalPad)
+                    TextField("Child 2", text: $child2Age).keyboardType(.decimalPad)
+                    TextField("Parent 1", text: $parent1Age).keyboardType(.decimalPad)
+                    TextField("Parent 2", text: $parent2Age).keyboardType(.decimalPad)
+                    TextField("Other", text: $otherDependentAge).keyboardType(.decimalPad)
                 }
                 
                 Section(header: Text("Employment Income")) {
-                    TextField("Spouse", text: $spouseIncome)
+                    TextField("Spouse", text: $spouseEmploymentIncome).keyboardType(.decimalPad)
                 }
                 
                 Section(header: Text("Portfolio")) {
-                    TextField("Cash and Savings", text: $cashSavings)
-                    TextField("Vested retirement accounts", text: $retirementAccounts)
-                    TextField("Life Insurance", text: $lifeInsurance)
-                    TextField("Property", text: $property)
+                    TextField("Cash and Savings", text: $cashSavings).keyboardType(.decimalPad)
+                    TextField("Vested Retirement Accounts", text: $vestedRetirementAccounts).keyboardType(.decimalPad)
+                    TextField("Life Insurance", text: $lifeInsurance).keyboardType(.decimalPad)
+                    TextField("Property", text: $property).keyboardType(.decimalPad)
                 }
                 
                 Section(header: Text("Other Assets")) {
-                    TextField("Investment Portfolio - Equity", text: $equityInvestments)
-                    TextField("Investment Portfolio - Bonds", text: $bondInvestments)
+                    TextField("Investment Portfolio - Equity", text: $investmentPortfolioEquity).keyboardType(.decimalPad)
+                    TextField("Investment Portfolio - Bonds", text: $investmentPortfolioBonds).keyboardType(.decimalPad)
+                }
+                
+                Section {
+                    Button(action: calculateLifeInsuranceRequirement) {
+                        Text("Calculate Life Insurance Requirement")
+                    }
+                    
+                    Button(action: exportData) {
+                        Text("Export Data")
+                    }
+                }
+                
+                if let requirement = lifeInsuranceRequirement {
+                    Section(header: Text("Valuation Output")) {
+                        Text("Life Insurance Required: \(currency) \(requirement, specifier: "%.2f")")
+                    }
                 }
             }
-            
-            Button(action: {
-                self.calculateLifeInsurance()
-            }) {
-                Text("Calculate Life Insurance Requirement")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            
-            Text("Life Insurance Required: \(lifeInsuranceRequired)")
-                .font(.title)
-                .padding()
+            .navigationBarItems(leading: Text("What's Your Worth?")
+                .font(.title) )
+            .font(.title2)
         }
-        .padding()
+    }
+    
+    func calculateLifeInsuranceRequirement() {
+        // Parsing inputs to Double
+        let finalExpensesValue = Double(finalExpenses) ?? 0.0
+        let taxesPayableValue = Double(taxesPayable) ?? 0.0
+        let mortgageRetirementValue = Double(mortgageRetirement) ?? 0.0
+        let otherDebtValue = Double(otherDebt) ?? 0.0
+        let educationFundValue = Double(educationFund) ?? 0.0
+        let emergencyFundValue = Double(emergencyFund) ?? 0.0
+        let otherExpensesValue = Double(otherExpenses) ?? 0.0
+        
+        let spouseLivingExpensesValue = Double(spouseLivingExpenses) ?? 0.0
+        let child1LivingExpensesValue = Double(child1LivingExpenses) ?? 0.0
+        let child2LivingExpensesValue = Double(child2LivingExpenses) ?? 0.0
+        let parent1LivingExpensesValue = Double(parent1LivingExpenses) ?? 0.0
+        let parent2LivingExpensesValue = Double(parent2LivingExpenses) ?? 0.0
+        let otherLivingExpensesValue = Double(otherLivingExpenses) ?? 0.0
+        
+        let cashSavingsValue = Double(cashSavings) ?? 0.0
+        let vestedRetirementAccountsValue = Double(vestedRetirementAccounts) ?? 0.0
+        let lifeInsuranceValue = Double(lifeInsurance) ?? 0.0
+        let propertyValue = Double(property) ?? 0.0
+        
+        let investmentPortfolioEquityValue = Double(investmentPortfolioEquity) ?? 0.0
+        let investmentPortfolioBondsValue = Double(investmentPortfolioBonds) ?? 0.0
+        
+        // Calculate total expenses
+        let totalExpenses = finalExpensesValue + taxesPayableValue + mortgageRetirementValue + otherDebtValue + educationFundValue + emergencyFundValue + otherExpensesValue
+        
+        // Calculate living expenses over the years
+        let yearsToRetirement = 65 - (Double(spouseAge) ?? 0.0)
+        let spouseLivingExpensesTotal = spouseLivingExpensesValue * yearsToRetirement
+        
+        let child1LivingExpensesTotal = child1LivingExpensesValue * max(21 - (Double(child1Age) ?? 0.0), 0)
+        let child2LivingExpensesTotal = child2LivingExpensesValue * max(21 - (Double(child2Age) ?? 0.0), 0)
+        
+        let parent1LivingExpensesTotal = parent1LivingExpensesValue * max(85 - (Double(parent1Age) ?? 0.0), 0)
+        let parent2LivingExpensesTotal = parent2LivingExpensesValue * max(85 - (Double(parent2Age) ?? 0.0), 0)
+        
+        let otherLivingExpensesTotal = otherLivingExpensesValue * max(85 - (Double(otherDependentAge) ?? 0.0), 0)
+        
+        let totalLivingExpenses = spouseLivingExpensesTotal + child1LivingExpensesTotal + child2LivingExpensesTotal + parent1LivingExpensesTotal + parent2LivingExpensesTotal + otherLivingExpensesTotal
+        
+        // Calculate total capital available
+        let totalCapitalAvailable = cashSavingsValue + vestedRetirementAccountsValue + lifeInsuranceValue + propertyValue + investmentPortfolioEquityValue + investmentPortfolioBondsValue
+        
+        // Calculate life insurance requirement
+        lifeInsuranceRequirement = (totalExpenses + totalLivingExpenses) - totalCapitalAvailable
+    }
+    
+    func exportData() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        let formattedDate = dateFormatter.string(from: valuationDate)
+        
+        let data = """
+        Valuation Date: \(formattedDate)
+        Name of Applicant: \(name)
+        Country of Applicant: \(country)
+        Currency used: \(currency)
+        
+        Expenses:
+        Final Expenses: \(finalExpenses)
+        Taxes Payables: \(taxesPayable)
+        Mortgage Retirement: \(mortgageRetirement)
+        Other Debts: \(otherDebt)
+        Education Fund: \(educationFund)
+        Emergency Fund: \(emergencyFund)
+        Others: \(otherExpenses)
+        
+        Living expenses annually:
+        Spouse: \(spouseLivingExpenses)
+        Child 1: \(child1LivingExpenses)
+        Child 2: \(child2LivingExpenses)
+        Parent 1: \(parent1LivingExpenses)
+        Parent 2: \(parent2LivingExpenses)
+        Other: \(otherLivingExpenses)
+        
+        Dependent Age:
+        Spouse: \(spouseAge)
+        Child 1: \(child1Age)
+        Child 2: \(child2Age)
+        Parent 1: \(parent1Age)
+        Parent 2: \(parent2Age)
+        Other: \(otherDependentAge)
+        
+        Employment income:
+        Spouse: \(spouseEmploymentIncome)
+        
+        Portfolio:
+        Cash and Savings: \(cashSavings)
+        Vested retirement accounts: \(vestedRetirementAccounts)
+        Life Insurance: \(lifeInsurance)
+        Property: \(property)
+        
+        Other assets:
+        Investment Portfolio - Equity: \(investmentPortfolioEquity)
+        Investment Portfolio - Bonds: \(investmentPortfolioBonds)
+        
+        Valuation Output - Life Insurance Required: \(lifeInsuranceRequirement ?? 0.0)
+        """
+        
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("LifeInsuranceData.txt")
+        
+        do {
+            try data.write(to: url, atomically: true, encoding: .utf8)
+            print("Data exported successfully to \(url)")
+        } catch {
+            print("Failed to export data: \(error.localizedDescription)")
+        }
+        
+        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        
+        if let topController = UIApplication.shared.windows.first?.rootViewController {
+            topController.present(activityVC, animated: true, completion: nil)
+        }
     }
 }
 
-struct LifeInsuranceCalculator_Previews: PreviewProvider {
-    static var previews: some View {
-        LifeInsuranceCalculator()
+struct WhatsYourWorthApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
     }
 }
-
-
 
 #Preview {
     ContentView()
