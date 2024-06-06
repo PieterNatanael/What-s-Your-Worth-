@@ -11,6 +11,205 @@
 
 
 
+import SwiftUI
+
+struct LifeInsuranceCalculator: View {
+    // Inputs
+    @State private var valuationDate: Date = Date()
+    @State private var applicantName: String = ""
+    @State private var applicantCountry: String = ""
+    @State private var currency: String = ""
+    
+    // Final Expenses
+    @State private var taxesPayable: String = ""
+    @State private var mortgageRetirement: String = ""
+    @State private var otherDebts: String = ""
+    @State private var educationFund: String = ""
+    @State private var emergencyFund: String = ""
+    @State private var otherFinalExpenses: String = ""
+    
+    // Living Expenses
+    @State private var spouseLivingExpenses: String = ""
+    @State private var child1LivingExpenses: String = ""
+    @State private var child2LivingExpenses: String = ""
+    @State private var parent1LivingExpenses: String = ""
+    @State private var parent2LivingExpenses: String = ""
+    @State private var otherLivingExpenses: String = ""
+    
+    // Dependent Ages
+    @State private var spouseAge: String = ""
+    @State private var child1Age: String = ""
+    @State private var child2Age: String = ""
+    @State private var parent1Age: String = ""
+    @State private var parent2Age: String = ""
+    @State private var otherDependentAge: String = ""
+    
+    // Employment Income
+    @State private var spouseIncome: String = ""
+    
+    // Portfolio
+    @State private var cashSavings: String = ""
+    @State private var retirementAccounts: String = ""
+    @State private var lifeInsurance: String = ""
+    @State private var property: String = ""
+    
+    // Other Assets
+    @State private var equityInvestments: String = ""
+    @State private var bondInvestments: String = ""
+    
+    // Output
+    @State private var lifeInsuranceRequired: String = "0.00"
+    
+    // Constants
+    let lifeExpectancy = 85
+    let retirementAge = 62
+    
+    // Function to calculate life insurance requirement
+    func calculateLifeInsurance() {
+        // Convert input strings to doubles for calculation
+        let taxesPayable = Double(self.taxesPayable) ?? 0.0
+        let mortgageRetirement = Double(self.mortgageRetirement) ?? 0.0
+        let otherDebts = Double(self.otherDebts) ?? 0.0
+        let educationFund = Double(self.educationFund) ?? 0.0
+        let emergencyFund = Double(self.emergencyFund) ?? 0.0
+        let otherFinalExpenses = Double(self.otherFinalExpenses) ?? 0.0
+        
+        let spouseLivingExpenses = Double(self.spouseLivingExpenses) ?? 0.0
+        let child1LivingExpenses = Double(self.child1LivingExpenses) ?? 0.0
+        let child2LivingExpenses = Double(self.child2LivingExpenses) ?? 0.0
+        let parent1LivingExpenses = Double(self.parent1LivingExpenses) ?? 0.0
+        let parent2LivingExpenses = Double(self.parent2LivingExpenses) ?? 0.0
+        let otherLivingExpenses = Double(self.otherLivingExpenses) ?? 0.0
+        
+        let spouseAge = Double(self.spouseAge) ?? 0.0
+        let child1Age = Double(self.child1Age) ?? 0.0
+        let child2Age = Double(self.child2Age) ?? 0.0
+        let parent1Age = Double(self.parent1Age) ?? 0.0
+        let parent2Age = Double(self.parent2Age) ?? 0.0
+        let otherDependentAge = Double(self.otherDependentAge) ?? 0.0
+        
+        let spouseIncome = Double(self.spouseIncome) ?? 0.0
+        
+        let cashSavings = Double(self.cashSavings) ?? 0.0
+        let retirementAccounts = Double(self.retirementAccounts) ?? 0.0
+        let lifeInsurance = Double(self.lifeInsurance) ?? 0.0
+        let property = Double(self.property) ?? 0.0
+        
+        let equityInvestments = Double(self.equityInvestments) ?? 0.0
+        let bondInvestments = Double(self.bondInvestments) ?? 0.0
+        
+        // Calculate total final expenses
+        let totalFinalExpenses = taxesPayable + mortgageRetirement + otherDebts + educationFund + emergencyFund + otherFinalExpenses
+        
+        // Calculate total living expenses considering dependent ages
+        let spouseYearsOfSupport = lifeExpectancy - spouseAge
+        let child1YearsOfSupport = 21 - child1Age
+        let child2YearsOfSupport = 21 - child2Age
+        let parent1YearsOfSupport = lifeExpectancy - parent1Age
+        let parent2YearsOfSupport = lifeExpectancy - parent2Age
+        
+        let totalLivingExpenses = (spouseLivingExpenses * spouseYearsOfSupport) + (child1LivingExpenses * child1YearsOfSupport) + (child2LivingExpenses * child2YearsOfSupport) + (parent1LivingExpenses * parent1YearsOfSupport) + (parent2LivingExpenses * parent2YearsOfSupport) + otherLivingExpenses
+        
+        // Calculate total portfolio and assets
+        let totalAssets = cashSavings + retirementAccounts + lifeInsurance + property + equityInvestments + bondInvestments
+        
+        // Calculate total employment income until retirement
+        let yearsUntilRetirement = retirementAge - spouseAge
+        let totalEmploymentIncome = spouseIncome * Double(yearsUntilRetirement)
+        
+        // Calculate life insurance requirement
+        let lifeInsuranceRequirement = totalFinalExpenses + totalLivingExpenses - totalAssets - totalEmploymentIncome
+        
+        // Update the state
+        self.lifeInsuranceRequired = String(format: "%.2f", lifeInsuranceRequirement)
+    }
+    
+    var body: some View {
+        VStack {
+            Form {
+                Section(header: Text("Applicant Information")) {
+                    DatePicker("Valuation Date", selection: $valuationDate, displayedComponents: .date)
+                    TextField("Name of Applicant", text: $applicantName)
+                    TextField("Country of Applicant", text: $applicantCountry)
+                    TextField("Currency used", text: $currency)
+                }
+                
+                Section(header: Text("Final Expenses")) {
+                    TextField("Taxes Payables", text: $taxesPayable)
+                    TextField("Mortgage Retirement", text: $mortgageRetirement)
+                    TextField("Other Debts", text: $otherDebts)
+                    TextField("Education Fund", text: $educationFund)
+                    TextField("Emergency Fund", text: $emergencyFund)
+                    TextField("Others", text: $otherFinalExpenses)
+                }
+                
+                Section(header: Text("Living Expenses")) {
+                    TextField("Spouse", text: $spouseLivingExpenses)
+                    TextField("Child 1", text: $child1LivingExpenses)
+                    TextField("Child 2", text: $child2LivingExpenses)
+                    TextField("Parent 1", text: $parent1LivingExpenses)
+                    TextField("Parent 2", text: $parent2LivingExpenses)
+                    TextField("Other", text: $otherLivingExpenses)
+                }
+                
+                Section(header: Text("Dependent Age")) {
+                    TextField("Spouse", text: $spouseAge)
+                    TextField("Child 1", text: $child1Age)
+                    TextField("Child 2", text: $child2Age)
+                    TextField("Parent 1", text: $parent1Age)
+                    TextField("Parent 2", text: $parent2Age)
+                    TextField("Other", text: $otherDependentAge)
+                }
+                
+                Section(header: Text("Employment Income")) {
+                    TextField("Spouse", text: $spouseIncome)
+                }
+                
+                Section(header: Text("Portfolio")) {
+                    TextField("Cash and Savings", text: $cashSavings)
+                    TextField("Vested retirement accounts", text: $retirementAccounts)
+                    TextField("Life Insurance", text: $lifeInsurance)
+                    TextField("Property", text: $property)
+                }
+                
+                Section(header: Text("Other Assets")) {
+                    TextField("Investment Portfolio - Equity", text: $equityInvestments)
+                    TextField("Investment Portfolio - Bonds", text: $bondInvestments)
+                }
+            }
+            
+            Button(action: {
+                self.calculateLifeInsurance()
+            }) {
+                Text("Calculate Life Insurance Requirement")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
+            
+            Text("Life Insurance Required: \(lifeInsuranceRequired)")
+                .font(.title)
+                .padding()
+        }
+        .padding()
+    }
+}
+
+struct LifeInsuranceCalculator_Previews: PreviewProvider {
+    static var previews: some View {
+        LifeInsuranceCalculator()
+    }
+}
+
+
+
+#Preview {
+    ContentView()
+}
+
+/*
 //need major changes
 import SwiftUI
 import UIKit
@@ -272,6 +471,7 @@ struct DocumentPicker: UIViewControllerRepresentable {
     ContentView()
 }
 
+*/
 /*
 //perubahan total
 import SwiftUI
