@@ -19,6 +19,9 @@ struct ContentView: View {
     @State private var country = ""
     @State private var currency = ""
     
+    //Ads and app functionality
+    @State private var showAdsAndAppFunctionality = false
+    
     // Expenses
     @State private var finalExpenses = ""
     @State private var taxesPayable = ""
@@ -62,6 +65,9 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
+            
+       
+            
             Form {
                 Section(header: Text("Valuation Date")) {
                     DatePicker("Date", selection: $valuationDate, displayedComponents: .date)
@@ -133,11 +139,40 @@ struct ContentView: View {
                     }
                 }
             }
+            .navigationBarItems(leading:
+                HStack {
+                    Text("What's Your Worth?")
+                        .font(.title2)
+                    Spacer()
+                    Button(action: {
+                        showAdsAndAppFunctionality = true
+                    }) {
+                        Image(systemName: "questionmark.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(Color(.white))
+                            .padding()
+                            .shadow(color: Color.black.opacity(0.6), radius: 5, x: 0, y: 2)
+                    }
+                }
+            )
+            .font(.title3)
+            
+            /*
             .navigationBarItems(leading: Text("What's Your Worth?")
                 .font(.title) )
             .font(.title2)
+            */
+            
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        
+        .sheet(isPresented: $showAdsAndAppFunctionality) {
+            ShowAdsAndAppFunctionalityView(onConfirm: {
+                showAdsAndAppFunctionality = false
+            })
         }
     }
+    
     
     func calculateLifeInsuranceRequirement() {
         // Parsing inputs to Double
@@ -261,6 +296,249 @@ struct WhatsYourWorthApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+        }
+    }
+}
+
+
+// MARK: - Ads and App Functionality View
+
+// View showing information about ads and the app functionality
+struct ShowAdsAndAppFunctionalityView: View {
+    var onConfirm: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack {
+                // Section header
+                HStack {
+                    Text("Ads & App Functionality")
+                        .font(.title3.bold())
+                    Spacer()
+                }
+                Divider().background(Color.gray)
+
+                // Ads section
+                VStack {
+                    // Ads header
+                    HStack {
+                        Text("Ads")
+                            .font(.largeTitle.bold())
+                        Spacer()
+                    }
+                    // Ad image with link
+                    ZStack {
+                        Image("threedollar")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .cornerRadius(25)
+                            .clipped()
+                            .onTapGesture {
+                                if let url = URL(string: "https://b33.biz/three-dollar/") {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                    }
+                    
+                    // App Cards for ads
+                    VStack {
+                        Divider().background(Color.gray)
+                        AppCardView(imageName: "bodycam", appName: "BODYCam", appDescription: "Record videos effortlessly and discreetly.", appURL: "https://apps.apple.com/id/app/b0dycam/id6496689003")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "timetell", appName: "TimeTell", appDescription: "Announce the time every 30 seconds, no more guessing and checking your watch, for time-sensitive tasks.", appURL: "https://apps.apple.com/id/app/loopspeak/id6473384030")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "SingLoop", appName: "Sing LOOP", appDescription: "Record your voice effortlessly, and play it back in a loop.", appURL: "https://apps.apple.com/id/app/sing-l00p/id6480459464")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "loopspeak", appName: "LOOPSpeak", appDescription: "Type or paste your text, play in loop, and enjoy hands-free narration.", appURL: "https://apps.apple.com/id/app/loopspeak/id6473384030")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "insomnia", appName: "Insomnia Sheep", appDescription: "Design to ease your mind and help you relax leading up to sleep.", appURL: "https://apps.apple.com/id/app/insomnia-sheep/id6479727431")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "dryeye", appName: "Dry Eye Read", appDescription: "The go-to solution for a comfortable reading experience, by adjusting font size and color to suit your reading experience.", appURL: "https://apps.apple.com/id/app/dry-eye-read/id6474282023")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "iprogram", appName: "iProgramMe", appDescription: "Custom affirmations, schedule notifications, stay inspired daily.", appURL: "https://apps.apple.com/id/app/iprogramme/id6470770935")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "temptation", appName: "TemptationTrack", appDescription: "One button to track milestones, monitor progress, stay motivated.", appURL: "https://apps.apple.com/id/app/temptationtrack/id6471236988")
+                        Divider().background(Color.gray)
+                    }
+                    Spacer()
+                }
+                .padding()
+                .cornerRadius(15.0)
+
+                // App functionality section
+                HStack {
+                    Text("App Functionality")
+                        .font(.title.bold())
+                    Spacer()
+                }
+
+                Text("""
+                • Parameters Explanation:
+                * Final Expenses: Estimated costs for funeral, medical bills, etc.
+                * Taxes Payables: Estimated taxes due at the time of death.
+                * Mortgage Retirement: Outstanding mortgage balance.
+                * Other Debts: Any other debts that need to be paid off.
+                * Education Fund: Funds set aside for children’s education.
+                * Emergency Fund: Funds for unforeseen expenses.
+                * Living Expenses: Annual living expenses for each dependent.
+                * Retirement Age: Assumed age when the spouse stops working (default: 65 years old).
+                * Age at End of Education for Children: Assumed age when children finish their education (default: 21 years old).
+                * Employment Income: Annual income from employment.
+                * Cash and Savings: Liquid assets available.
+                * Vested Retirement Accounts: Retirement accounts that can be accessed.
+                * Life Insurance: Existing life insurance policies.
+                * Property: Value of property owned.
+                * Investment Portfolio - Equity: Investments in equities.
+                * Investment Portfolio - Bonds: Investments in bonds.
+
+
+
+                Example Calculation for an American User
+                Input Data:
+                * Name of Applicant: John Doe
+                * Country of Applicant: USA
+                * Currency used: USD
+                Expenses:
+                * Final Expenses: $10,000
+                * Taxes Payables: $5,000
+                * Mortgage Retirement: $200,000
+                * Other Debts: $15,000
+                * Education Fund: $50,000
+                * Emergency Fund: $25,000
+                * Others: $0
+                Living expenses annually:
+                * Spouse: $40,000
+                * Child 1: $20,000
+                * Child 2: $20,000
+                * Parent 1: $0
+                * Parent 2: $0
+                * Other: $0
+                Dependent Age:
+                * Spouse: 40
+                * Child 1: 8
+                * Child 2: 5
+                * Parent 1: N/A
+                * Parent 2: N/A
+                * Other: N/A
+                Employment income:
+                * Spouse: $50,000
+                Portfolio:
+                * Cash and Savings: $30,000
+                * Vested retirement accounts: $100,000
+                * Life Insurance: $50,000
+                * Property: $200,000
+                Other assets:
+                * Investment Portfolio - Equity: $50,000
+                * Investment Portfolio - Bonds: $20,000
+                Assumptions:
+                * Retirement Age: 65 years old
+                * Age at End of Education for Children: 21 years old
+
+                Calculation Steps:
+                1. Cash Needs:
+                    * Final Expenses: $10,000
+                    * Taxes Payables: $5,000
+                    * Mortgage Retirement: $200,000
+                    * Other Debts: $15,000
+                    * Education Fund: $50,000
+                    * Emergency Fund: $25,000
+                    * Total: $305,000
+                2. Capital Needs:
+                    * Spouse: $1,000,000
+                    * Child 1: $260,000
+                    * Child 2: $320,000
+                    * Total: $1,580,000
+                3. Total Financial Needs:
+                    * Cash Needs: $305,000
+                    * Capital Needs: $1,580,000
+                    * Total: $1,885,000
+                4. Total Capital Available:
+                    * Cash and Savings: $30,000
+                    * Vested Retirement Accounts: $100,000
+                    * Life Insurance: $50,000
+                    * Property: $200,000
+                    * Investment Portfolio - Equity: $50,000
+                    * Investment Portfolio - Bonds: $20,000
+                    * Total: $450,000
+                5. Life Insurance Requirement:
+                    * Total Financial Needs: $1,885,000
+                    * Total Capital Available: $450,000
+                    * Life Insurance Requirement: $1,435,000
+
+                """)
+                .font(.title3)
+                .multilineTextAlignment(.leading)
+                .padding()
+
+                Spacer()
+
+                HStack {
+                    Text("Whats's Your Worth? is developed by Three Dollar.")
+                        .font(.title3.bold())
+                    Spacer()
+                }
+
+                // Close button
+                Button("Close") {
+                    onConfirm()
+                }
+                .font(.title)
+                .padding()
+                .cornerRadius(25.0)
+            }
+            .padding()
+            .cornerRadius(15.0)
+        }
+    }
+}
+
+// MARK: - Ads App Card View
+
+// View displaying individual ads app cards
+struct AppCardView: View {
+    var imageName: String
+    var appName: String
+    var appDescription: String
+    var appURL: String
+
+    var body: some View {
+        HStack {
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 60, height: 60)
+                .cornerRadius(7)
+
+            VStack(alignment: .leading) {
+                Text(appName)
+                    .font(.title3)
+                Text(appDescription)
+                    .font(.caption)
+            }
+            .frame(alignment: .leading)
+
+            Spacer()
+
+            // Try button
+            Button(action: {
+                if let url = URL(string: appURL) {
+                    UIApplication.shared.open(url)
+                }
+            }) {
+                Text("Try")
+                    .font(.headline)
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
         }
     }
 }
