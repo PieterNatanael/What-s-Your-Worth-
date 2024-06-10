@@ -8,7 +8,6 @@ Summary and Calculation: Displays the calculated life insurance requirement.
 Export Feature: Allows users to export their data and calculated results.
 App Privacy: No data is collected.
 
-developer : Pieter Yoshua Natanael
 
 
 Privacy Policy
