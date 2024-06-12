@@ -8,8 +8,549 @@
 
 //the app with collaboration with Alan Theo
 
+import SwiftUI
+import Foundation
+
+struct ContentView: View {
+    @State private var valuationDate = Date()
+    @State private var name = ""
+    @State private var country = ""
+    @State private var currency = ""
+    
+    // Ads and app functionality
+    @State private var showAdsAndAppFunctionality = false
+    
+    // Expenses
+    @State private var finalExpenses = ""
+    @State private var taxesPayable = ""
+    @State private var mortgageRetirement = ""
+    @State private var otherDebt = ""
+    @State private var educationFund = ""
+    @State private var emergencyFund = ""
+    @State private var otherExpenses = ""
+    
+    // Living Expenses Annually
+    @State private var spouseLivingExpenses = ""
+    @State private var child1LivingExpenses = ""
+    @State private var child2LivingExpenses = ""
+    @State private var parent1LivingExpenses = ""
+    @State private var parent2LivingExpenses = ""
+    @State private var otherLivingExpenses = ""
+    
+    // Dependent Age
+    @State private var spouseAge = ""
+    @State private var child1Age = ""
+    @State private var child2Age = ""
+    @State private var parent1Age = ""
+    @State private var parent2Age = ""
+    @State private var otherDependentAge = ""
+    
+    // Employment Income
+    @State private var spouseEmploymentIncome = ""
+    
+    // Portfolio
+    @State private var cashSavings = ""
+    @State private var vestedRetirementAccounts = ""
+    @State private var lifeInsurance = ""
+    @State private var property = ""
+    
+    // Other Assets
+    @State private var investmentPortfolioEquity = ""
+    @State private var investmentPortfolioBonds = ""
+    
+    // Calculation Results
+    @State private var lifeInsuranceRequirement: Double?
+    @State private var netWorth: Double?
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Valuation Date")) {
+                    DatePicker("Date", selection: $valuationDate, displayedComponents: .date)
+                }
+                
+                Section(header: Text("Personal Information")) {
+                    TextField("Name", text: $name)
+                    TextField("Country", text: $country)
+                    TextField("Currency", text: $currency)
+                }
+                
+                Section(header: Text("Expenses")) {
+                    TextField("Final Expenses", text: $finalExpenses).keyboardType(.decimalPad)
+                    TextField("Taxes Payable", text: $taxesPayable).keyboardType(.decimalPad)
+                    TextField("Mortgage Retirement", text: $mortgageRetirement).keyboardType(.decimalPad)
+                    TextField("Other Debt", text: $otherDebt).keyboardType(.decimalPad)
+                    TextField("Education Fund", text: $educationFund).keyboardType(.decimalPad)
+                    TextField("Emergency Fund", text: $emergencyFund).keyboardType(.decimalPad)
+                    TextField("Other Expenses", text: $otherExpenses).keyboardType(.decimalPad)
+                }
+                
+                Section(header: Text("Living Expenses Annually")) {
+                    TextField("Spouse", text: $spouseLivingExpenses).keyboardType(.decimalPad)
+                    TextField("Child 1", text: $child1LivingExpenses).keyboardType(.decimalPad)
+                    TextField("Child 2", text: $child2LivingExpenses).keyboardType(.decimalPad)
+                    TextField("Parent 1", text: $parent1LivingExpenses).keyboardType(.decimalPad)
+                    TextField("Parent 2", text: $parent2LivingExpenses).keyboardType(.decimalPad)
+                    TextField("Other", text: $otherLivingExpenses).keyboardType(.decimalPad)
+                }
+                
+                Section(header: Text("Dependent Age")) {
+                    TextField("Spouse", text: $spouseAge).keyboardType(.decimalPad)
+                    TextField("Child 1", text: $child1Age).keyboardType(.decimalPad)
+                    TextField("Child 2", text: $child2Age).keyboardType(.decimalPad)
+                    TextField("Parent 1", text: $parent1Age).keyboardType(.decimalPad)
+                    TextField("Parent 2", text: $parent2Age).keyboardType(.decimalPad)
+                    TextField("Other", text: $otherDependentAge).keyboardType(.decimalPad)
+                }
+                
+                Section(header: Text("Employment Income")) {
+                    TextField("Spouse", text: $spouseEmploymentIncome).keyboardType(.decimalPad)
+                }
+                
+                Section(header: Text("Portfolio")) {
+                    TextField("Cash and Savings", text: $cashSavings).keyboardType(.decimalPad)
+                    TextField("Vested Retirement Accounts", text: $vestedRetirementAccounts).keyboardType(.decimalPad)
+                    TextField("Life Insurance", text: $lifeInsurance).keyboardType(.decimalPad)
+                    TextField("Property", text: $property).keyboardType(.decimalPad)
+                }
+                
+                Section(header: Text("Other Assets")) {
+                    TextField("Investment Portfolio - Equity", text: $investmentPortfolioEquity).keyboardType(.decimalPad)
+                    TextField("Investment Portfolio - Bonds", text: $investmentPortfolioBonds).keyboardType(.decimalPad)
+                }
+                
+                Section {
+                    Button(action: calculateRequirements) {
+                        Text("Calculate Requirements")
+                    }
+                    
+                    Button(action: exportData) {
+                        Text("Export Data")
+                    }
+                }
+                
+                if let requirement = lifeInsuranceRequirement {
+                    Section(header: Text("Valuation Output")) {
+                        Text("Life Insurance Required: \(currency) \(requirement, specifier: "%.2f")")
+                    }
+                }
+                
+                if let worth = netWorth {
+                    Section(header: Text("Net Worth")) {
+                        Text("Net Worth: \(currency) \(worth, specifier: "%.2f")")
+                    }
+                }
+            }
+            .navigationBarItems(leading:
+                HStack {
+                    Text("What's Your Worth?")
+                        .font(.title2)
+                    Spacer()
+                    Button(action: {
+                        showAdsAndAppFunctionality = true
+                    }) {
+                        Image(systemName: "questionmark.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(Color(.white))
+                            .padding()
+                            .shadow(color: Color.black.opacity(0.6), radius: 5, x: 0, y: 2)
+                    }
+                }
+            )
+            .font(.title3)
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .sheet(isPresented: $showAdsAndAppFunctionality) {
+            ShowAdsAndAppFunctionalityView(onConfirm: {
+                showAdsAndAppFunctionality = false
+            })
+        }
+    }
+    
+    func calculateRequirements() {
+        // Parsing inputs to Double
+        let finalExpensesValue = Double(finalExpenses) ?? 0.0
+        let taxesPayableValue = Double(taxesPayable) ?? 0.0
+        let mortgageRetirementValue = Double(mortgageRetirement) ?? 0.0
+        let otherDebtValue = Double(otherDebt) ?? 0.0
+        let educationFundValue = Double(educationFund) ?? 0.0
+        let emergencyFundValue = Double(emergencyFund) ?? 0.0
+        let otherExpensesValue = Double(otherExpenses) ?? 0.0
+        
+        let spouseLivingExpensesValue = Double(spouseLivingExpenses) ?? 0.0
+        let child1LivingExpensesValue = Double(child1LivingExpenses) ?? 0.0
+        let child2LivingExpensesValue = Double(child2LivingExpenses) ?? 0.0
+        let parent1LivingExpensesValue = Double(parent1LivingExpenses) ?? 0.0
+        let parent2LivingExpensesValue = Double(parent2LivingExpenses) ?? 0.0
+        let otherLivingExpensesValue = Double(otherLivingExpenses) ?? 0.0
+        
+        let cashSavingsValue = Double(cashSavings) ?? 0.0
+        let vestedRetirementAccountsValue = Double(vestedRetirementAccounts) ?? 0.0
+        let lifeInsuranceValue = Double(lifeInsurance) ?? 0.0
+        let propertyValue = Double(property) ?? 0.0
+        
+        let investmentPortfolioEquityValue = Double(investmentPortfolioEquity) ?? 0.0
+        let investmentPortfolioBondsValue = Double(investmentPortfolioBonds) ?? 0.0
+        
+        // Calculate total expenses
+        let totalExpenses = finalExpensesValue + taxesPayableValue + mortgageRetirementValue + otherDebtValue + educationFundValue + emergencyFundValue + otherExpensesValue
+        
+        // Calculate living expenses over the years
+        let yearsToRetirement = 65 - (Double(spouseAge) ?? 0.0)
+        let spouseLivingExpensesTotal = spouseLivingExpensesValue * yearsToRetirement
+        
+        let child1LivingExpensesTotal = child1LivingExpensesValue * max(21 - (Double(child1Age) ?? 0.0), 0)
+        let child2LivingExpensesTotal = child2LivingExpensesValue * max(21 - (Double(child2Age) ?? 0.0), 0)
+        
+        let parent1LivingExpensesTotal = parent1LivingExpensesValue * max(85 - (Double(parent1Age) ?? 0.0), 0)
+        let parent2LivingExpensesTotal = parent2LivingExpensesValue * max(85 - (Double(parent2Age) ?? 0.0), 0)
+        
+        let otherLivingExpensesTotal = otherLivingExpensesValue * max(21 - (Double(otherDependentAge) ?? 0.0), 0)
+        
+        let totalLivingExpenses = spouseLivingExpensesTotal + child1LivingExpensesTotal + child2LivingExpensesTotal + parent1LivingExpensesTotal + parent2LivingExpensesTotal + otherLivingExpensesTotal
+        
+        // Calculate total assets
+        let totalAssets = cashSavingsValue + vestedRetirementAccountsValue + lifeInsuranceValue + propertyValue + investmentPortfolioEquityValue + investmentPortfolioBondsValue
+        
+        // Calculate life insurance requirement
+        lifeInsuranceRequirement = totalExpenses + totalLivingExpenses - totalAssets
+        
+        // Calculate net worth
+        netWorth = totalAssets - (finalExpensesValue + taxesPayableValue + mortgageRetirementValue + otherDebtValue + otherExpensesValue)
+    }
+    
+    func exportData() {
+        let fileName = "InsuranceCalculation.txt"
+        let fileContents = """
+        Valuation Date: \(valuationDate)
+        Name: \(name)
+        Country: \(country)
+        Currency: \(currency)
+        
+        Final Expenses: \(finalExpenses)
+        Taxes Payable: \(taxesPayable)
+        Mortgage Retirement: \(mortgageRetirement)
+        Other Debt: \(otherDebt)
+        Education Fund: \(educationFund)
+        Emergency Fund: \(emergencyFund)
+        Other Expenses: \(otherExpenses)
+        
+        Spouse Living Expenses: \(spouseLivingExpenses)
+        Child 1 Living Expenses: \(child1LivingExpenses)
+        Child 2 Living Expenses: \(child2LivingExpenses)
+        Parent 1 Living Expenses: \(parent1LivingExpenses)
+        Parent 2 Living Expenses: \(parent2LivingExpenses)
+        Other Living Expenses: \(otherLivingExpenses)
+        
+        Spouse Age: \(spouseAge)
+        Child 1 Age: \(child1Age)
+        Child 2 Age: \(child2Age)
+        Parent 1 Age: \(parent1Age)
+        Parent 2 Age: \(parent2Age)
+        Other Dependent Age: \(otherDependentAge)
+        
+        Spouse Employment Income: \(spouseEmploymentIncome)
+        
+        Cash Savings: \(cashSavings)
+        Vested Retirement Accounts: \(vestedRetirementAccounts)
+        Life Insurance: \(lifeInsurance)
+        Property: \(property)
+        
+        Investment Portfolio - Equity: \(investmentPortfolioEquity)
+        Investment Portfolio - Bonds: \(investmentPortfolioBonds)
+        
+        Life Insurance Required: \(currency) \(lifeInsuranceRequirement ?? 0.0)
+        Net Worth: \(currency) \(netWorth ?? 0.0)
+        """
+        
+        let filePath = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+        
+        do {
+            try fileContents.write(to: filePath, atomically: true, encoding: .utf8)
+            
+            let activityVC = UIActivityViewController(activityItems: [filePath], applicationActivities: nil)
+            
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let rootVC = windowScene.windows.first?.rootViewController {
+                rootVC.present(activityVC, animated: true, completion: nil)
+            }
+        } catch {
+            print("Error exporting data: \(error)")
+        }
+    }
+}
 
 
+// MARK: - Ads and App Functionality View
+
+// View showing information about ads and the app functionality
+struct ShowAdsAndAppFunctionalityView: View {
+    var onConfirm: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack {
+                // Section header
+                HStack {
+                    Text("Ads & App Functionality")
+                        .font(.title3.bold())
+                    Spacer()
+                }
+                Divider().background(Color.gray)
+
+                // Ads section
+                VStack {
+                    // Ads header
+                    HStack {
+                        Text("Ads")
+                            .font(.largeTitle.bold())
+                        Spacer()
+                    }
+                    // Ad image with link
+                    ZStack {
+                        Image("threedollar")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .cornerRadius(25)
+                            .clipped()
+                            .onTapGesture {
+                                if let url = URL(string: "https://b33.biz/three-dollar/") {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                    }
+                    
+                    // App Cards for ads
+                    VStack {
+                        Divider().background(Color.gray)
+                        AppCardView(imageName: "bodycam", appName: "BODYCam", appDescription: "Record videos effortlessly and discreetly.", appURL: "https://apps.apple.com/id/app/b0dycam/id6496689003")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "timetell", appName: "TimeTell", appDescription: "Announce the time every 30 seconds, no more guessing and checking your watch, for time-sensitive tasks.", appURL: "https://apps.apple.com/id/app/loopspeak/id6473384030")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "SingLoop", appName: "Sing LOOP", appDescription: "Record your voice effortlessly, and play it back in a loop.", appURL: "https://apps.apple.com/id/app/sing-l00p/id6480459464")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "loopspeak", appName: "LOOPSpeak", appDescription: "Type or paste your text, play in loop, and enjoy hands-free narration.", appURL: "https://apps.apple.com/id/app/loopspeak/id6473384030")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "insomnia", appName: "Insomnia Sheep", appDescription: "Design to ease your mind and help you relax leading up to sleep.", appURL: "https://apps.apple.com/id/app/insomnia-sheep/id6479727431")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "dryeye", appName: "Dry Eye Read", appDescription: "The go-to solution for a comfortable reading experience, by adjusting font size and color to suit your reading experience.", appURL: "https://apps.apple.com/id/app/dry-eye-read/id6474282023")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "iprogram", appName: "iProgramMe", appDescription: "Custom affirmations, schedule notifications, stay inspired daily.", appURL: "https://apps.apple.com/id/app/iprogramme/id6470770935")
+                        Divider().background(Color.gray)
+
+                        AppCardView(imageName: "temptation", appName: "TemptationTrack", appDescription: "One button to track milestones, monitor progress, stay motivated.", appURL: "https://apps.apple.com/id/app/temptationtrack/id6471236988")
+                        Divider().background(Color.gray)
+                    }
+                    Spacer()
+                }
+                .padding()
+                .cornerRadius(15.0)
+
+                // App functionality section
+                HStack {
+                    Text("App Functionality")
+                        .font(.title.bold())
+                    Spacer()
+                }
+
+                Text("""
+                • Parameters Explanation:
+                * Final Expenses: Estimated costs for funeral, medical bills, etc.
+                * Taxes Payables: Estimated taxes due at the time of death.
+                * Mortgage Retirement: Outstanding mortgage balance.
+                * Other Debts: Any other debts that need to be paid off.
+                * Education Fund: Funds set aside for children’s education.
+                * Emergency Fund: Funds for unforeseen expenses.
+                * Living Expenses: Annual living expenses for each dependent.
+                * Retirement Age: Assumed age when the spouse stops working (default: 65 years old).
+                * Age at End of Education for Children: Assumed age when children finish their education (default: 21 years old).
+                * Employment Income: Annual income from employment.
+                * Cash and Savings: Liquid assets available.
+                * Vested Retirement Accounts: Retirement accounts that can be accessed.
+                * Life Insurance: Existing life insurance policies.
+                * Property: Value of property owned.
+                * Investment Portfolio - Equity: Investments in equities.
+                * Investment Portfolio - Bonds: Investments in bonds.
+
+
+
+                Example Calculation for an American User
+                Input Data:
+                * Name of Applicant: John Doe
+                * Country of Applicant: USA
+                * Currency used: USD
+                Expenses:
+                * Final Expenses: $10,000
+                * Taxes Payables: $5,000
+                * Mortgage Retirement: $200,000
+                * Other Debts: $15,000
+                * Education Fund: $50,000
+                * Emergency Fund: $25,000
+                * Others: $0
+                Living expenses annually:
+                * Spouse: $40,000
+                * Child 1: $20,000
+                * Child 2: $20,000
+                * Parent 1: $0
+                * Parent 2: $0
+                * Other: $0
+                Dependent Age:
+                * Spouse: 40
+                * Child 1: 8
+                * Child 2: 5
+                * Parent 1: N/A
+                * Parent 2: N/A
+                * Other: N/A
+                Employment income:
+                * Spouse: $50,000
+                Portfolio:
+                * Cash and Savings: $30,000
+                * Vested retirement accounts: $100,000
+                * Life Insurance: $50,000
+                * Property: $200,000
+                Other assets:
+                * Investment Portfolio - Equity: $50,000
+                * Investment Portfolio - Bonds: $20,000
+                Assumptions:
+                * Retirement Age: 65 years old
+                * Age at End of Education for Children: 21 years old
+
+                Calculation Steps:
+                1. Cash Needs:
+                    * Final Expenses: $10,000
+                    * Taxes Payables: $5,000
+                    * Mortgage Retirement: $200,000
+                    * Other Debts: $15,000
+                    * Education Fund: $50,000
+                    * Emergency Fund: $25,000
+                    * Total: $305,000
+                2. Capital Needs:
+                    * Spouse: $1,000,000
+                    * Child 1: $260,000
+                    * Child 2: $320,000
+                    * Total: $1,580,000
+                3. Total Financial Needs:
+                    * Cash Needs: $305,000
+                    * Capital Needs: $1,580,000
+                    * Total: $1,885,000
+                4. Total Capital Available:
+                    * Cash and Savings: $30,000
+                    * Vested Retirement Accounts: $100,000
+                    * Life Insurance: $50,000
+                    * Property: $200,000
+                    * Investment Portfolio - Equity: $50,000
+                    * Investment Portfolio - Bonds: $20,000
+                    * Total: $450,000
+                5. Life Insurance Requirement:
+                    * Total Financial Needs: $1,885,000
+                    * Total Capital Available: $450,000
+                    * Life Insurance Requirement: $1,435,000
+                
+                6. Net Worth value :
+                    * Net worth is a financial metric that represents the difference between what you own (assets) and what you owe (liabilities). The formula for net worth is:
+
+                Net Worth = Total Assets − Total Liabilities
+
+                Assets and Liabilities
+                Assets: These are things you own that have value. Assets include:
+
+                * Cash and savings
+                * Vested retirement accounts
+                * Life insurance
+                * Property
+                * Investment portfolio (both equity and bonds)
+                
+                Liabilities: These are things you owe or future obligations.  Liabilities include:
+
+                * Final expenses
+                * Taxes payable
+                * Mortgage retirement
+                * Other debt
+                * Other expenses
+
+                """)
+                .font(.title3)
+                .multilineTextAlignment(.leading)
+                .padding()
+
+                Spacer()
+
+                HStack {
+                    Text("Whats's Your Worth? is developed by Three Dollar.")
+                        .font(.title3.bold())
+                    Spacer()
+                }
+
+                // Close button
+                Button("Close") {
+                    onConfirm()
+                }
+                .font(.title)
+                .padding()
+                .cornerRadius(25.0)
+            }
+            .padding()
+            .cornerRadius(15.0)
+        }
+    }
+}
+
+// MARK: - Ads App Card View
+
+// View displaying individual ads app cards
+struct AppCardView: View {
+    var imageName: String
+    var appName: String
+    var appDescription: String
+    var appURL: String
+
+    var body: some View {
+        HStack {
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 60, height: 60)
+                .cornerRadius(7)
+
+            VStack(alignment: .leading) {
+                Text(appName)
+                    .font(.title3)
+                Text(appDescription)
+                    .font(.caption)
+            }
+            .frame(alignment: .leading)
+
+            Spacer()
+
+            // Try button
+            Button(action: {
+                if let url = URL(string: appURL) {
+                    UIApplication.shared.open(url)
+                }
+            }) {
+                Text("Try")
+                    .font(.headline)
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.blue)
+                    .cornerRadius(10)
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+
+/*
+//great, but want to do net worth improvement
 import SwiftUI
 import Foundation
 
@@ -547,6 +1088,7 @@ struct AppCardView: View {
     ContentView()
 }
 
+*/
 /*
 //need major changes
 import SwiftUI
