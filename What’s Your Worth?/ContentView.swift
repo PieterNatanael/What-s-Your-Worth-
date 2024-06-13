@@ -216,7 +216,7 @@ struct ContentView: View {
         lifeInsuranceRequirement = totalExpenses + totalLivingExpenses - totalAssets
         
         // Calculate net worth
-        netWorth = totalAssets - (finalExpensesValue + taxesPayableValue + mortgageRetirementValue + otherDebtValue + otherExpensesValue)
+        netWorth = (cashSavingsValue + vestedRetirementAccountsValue + propertyValue + investmentPortfolioEquityValue + investmentPortfolioBondsValue) - (finalExpensesValue + taxesPayableValue + mortgageRetirementValue + otherDebtValue + otherExpensesValue)
     }
     
     func exportData() {
@@ -462,7 +462,6 @@ struct ShowAdsAndAppFunctionalityView: View {
 
                 * Cash and savings
                 * Vested retirement accounts
-                * Life insurance
                 * Property
                 * Investment portfolio (both equity and bonds)
                 
@@ -470,7 +469,7 @@ struct ShowAdsAndAppFunctionalityView: View {
 
                 * Final expenses
                 * Taxes payable
-                * Mortgage retirement
+                11 days left to win exclusive merch   * Mortgage retirement
                 * Other debt
                 * Other expenses
 
