@@ -323,6 +323,10 @@ struct ShowAdsAndAppFunctionalityView: View {
                     // App Cards for ads
                     VStack {
                         Divider().background(Color.gray)
+
+                        AppCardView(imageName: "sos", appName: "SOS Light", appDescription: "SOS Light is designed to maximize the chances of getting help in emergency situations.", appURL: "https://apps.apple.com/app/s0s-light/id6504213303")
+                        
+                        Divider().background(Color.gray)
                         AppCardView(imageName: "bodycam", appName: "BODYCam", appDescription: "Record videos effortlessly and discreetly.", appURL: "https://apps.apple.com/id/app/b0dycam/id6496689003")
                         Divider().background(Color.gray)
 
@@ -370,6 +374,7 @@ struct ShowAdsAndAppFunctionalityView: View {
                 * Living Expenses: Annual living expenses for each dependent.
                 * Retirement Age: Assumed age when the spouse stops working (default: 65 years old).
                 * Age at End of Education for Children: Assumed age when children finish their education (default: 21 years old).
+                * Other Living expenses annualy: another Children
                 * Employment Income: Annual income from employment.
                 * Cash and Savings: Liquid assets available.
                 * Vested Retirement Accounts: Retirement accounts that can be accessed.
@@ -469,7 +474,7 @@ struct ShowAdsAndAppFunctionalityView: View {
 
                 * Final expenses
                 * Taxes payable
-                11 days left to win exclusive merch   * Mortgage retirement
+                * Mortgage retirement
                 * Other debt
                 * Other expenses
 
